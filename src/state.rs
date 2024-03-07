@@ -24,7 +24,6 @@ pub enum GameMode {
     TestLevel,
 }
 
-pub const LEVEL_CHANGE_DELAY_DEFAULT: u32 = 10;
 pub struct State {
     pub fps: f32,
     pub running: bool,
@@ -60,13 +59,7 @@ impl State {
 
         let level_design_state = Box::new(LevelDesignState {
             mode: LevelDesignMode::PlaceLines,
-            map: Box::new(Map {
-                starting_line: Line {
-                    a: Vec2::ZERO,
-                    b: Vec2::ZERO,
-                },
-                checkpoints: Vec::new(),
-            }),
+            map: Box::new(Map::new()),
         });
 
         Self {
@@ -131,6 +124,39 @@ pub struct Line {
 pub struct Map {
     pub starting_line: Line,
     pub checkpoints: Vec<Line>,
+    pub finish_line: Line,
+}
+
+impl Map {
+    pub fn new() -> Self {
+        Self {
+            starting_line: Line {
+                a: Vec2::new(117.0, 19.0),
+                b: Vec2::new(117.0, 55.0),
+            },
+            checkpoints: vec![
+                // 33,87 to 86, 87
+                Line {
+                    a: Vec2::new(33.0, 87.0),
+                    b: Vec2::new(86.0, 87.0),
+                },
+                // starting line, but down 100 pixels
+                Line {
+                    a: Vec2::new(117.0, 119.0),
+                    b: Vec2::new(117.0, 155.0),
+                },
+                // 136,86 to 209, 86
+                Line {
+                    a: Vec2::new(136.0, 86.0),
+                    b: Vec2::new(209.0, 86.0),
+                },
+            ],
+            finish_line: Line {
+                a: Vec2::new(130.0, 19.0),
+                b: Vec2::new(130.0, 55.0),
+            },
+        }
+    }
 }
 
 pub struct LevelDesignState {

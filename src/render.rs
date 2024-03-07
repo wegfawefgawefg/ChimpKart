@@ -39,6 +39,12 @@ pub fn title_render(_state: &State, d: &mut RaylibTextureMode<RaylibDrawHandle>)
     );
 }
 
-pub fn level_design_render(state: &State, d: &mut RaylibTextureMode<RaylibDrawHandle>) {}
+pub fn level_design_render(state: &State, d: &mut RaylibTextureMode<RaylibDrawHandle>) {
+    let mut cursor = Vec2::new(DIMS.x as f32 * 0.0, DIMS.y as f32 * 0.0);
+    let title = "level design mode";
+    let size = 10;
+    d.draw_text(title, cursor.x as i32, cursor.y as i32, size, Color::WHITE);
+    // cursor.y += size as f32 * 1.5;
+}
 
 const MESSAGES_OF_ENCOURAGEMENT: [&str; 5] = ["clean", "savage", "aww yeah", "sweet", "radical"];

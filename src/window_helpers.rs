@@ -1,15 +1,19 @@
-use glam::{UVec2, Vec2};
+use glam::UVec2;
 use raylib::prelude::*;
 
 use crate::state::State;
 
 pub fn center_window(rl: &mut raylib::RaylibHandle, window_dims: UVec2) {
-    let screen_dims = UVec2::new(rl.get_screen_width() as u32, rl.get_screen_height() as u32);
+    let current_monitor = get_current_monitor();
+    let monitor_width = get_monitor_width(current_monitor);
+    let monitor_height = get_monitor_height(current_monitor);
+    let screen_dims = UVec2::new(monitor_width as u32, monitor_height as u32);
+    println!("Screen dims: {:?}", screen_dims);
     let screen_center = screen_dims / 2;
     let window_center = window_dims / 2;
-    let mut offset = window_center - screen_center;
-    offset.y += 500;
-    rl.set_window_position(offset.x as i32, offset.y as i32);
+    let mut pos = screen_center - window_center;
+    pos.y += 500;
+    rl.set_window_position(pos.x as i32, pos.y as i32);
     rl.set_target_fps(144);
 }
 
@@ -26,6 +30,7 @@ pub fn center_window(rl: &mut raylib::RaylibHandle, window_dims: UVec2) {
     }
 */
 
+#[allow(clippy::too_many_arguments)]
 pub fn scale_and_blit_render_texture_to_window(
     rlt: &RaylibThread,
     state: &mut State,

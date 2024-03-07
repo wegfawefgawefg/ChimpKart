@@ -14,6 +14,28 @@ use crate::{
 };
 
 pub fn render(ecs: &World, state: &mut State) {
+    // render map
+    let map = &state.level_design_state.map;
+    // render starting line as white
+    state.render_command_buffer.push(RenderCommand::Line {
+        start: map.starting_line.a,
+        end: map.starting_line.b,
+        color: Color::WHITE,
+    });
+    // render finish line as green
+    state.render_command_buffer.push(RenderCommand::Line {
+        start: map.finish_line.a,
+        end: map.finish_line.b,
+        color: Color::GREEN,
+    });
+    // render checkpoints as white
+    for checkpoint in &map.checkpoints {
+        state.render_command_buffer.push(RenderCommand::Line {
+            start: checkpoint.a,
+            end: checkpoint.b,
+            color: Color::WHITE,
+        });
+    }
 
     // render_physics(state);
 

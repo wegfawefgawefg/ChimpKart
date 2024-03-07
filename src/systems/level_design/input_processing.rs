@@ -2,7 +2,7 @@ use hecs::World;
 
 use crate::{
     components::{CTransform, Paddle, Shape},
-    state::{State, LEVEL_CHANGE_DELAY_DEFAULT},
+    state::State,
 };
 
 pub fn process_inputs(ecs: &mut World, state: &mut State) {
