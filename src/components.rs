@@ -9,7 +9,7 @@ pub struct CTransform {
 }
 
 pub struct Player;
-
+pub struct Car;
 pub struct Ball;
 pub struct Bouncy;
 

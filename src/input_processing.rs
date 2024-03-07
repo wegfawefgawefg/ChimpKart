@@ -1,22 +1,26 @@
 use glam::Vec2;
+use hecs::World;
 use raylib::RaylibHandle;
 
-use crate::state::{GameMode, State};
+use crate::{
+    state::{GameMode, State},
+    state_transitions::transition_to_level_design,
+};
 
-pub fn process_input(rl: &mut RaylibHandle, state: &mut State) {
+pub fn process_input(rl: &mut RaylibHandle, ecs: &mut World, state: &mut State) {
     match state.game_mode {
         GameMode::Title => {
-            title_process_input(rl, state);
+            title_process_input(rl, ecs, state);
         }
         GameMode::LevelDesign => {
-            level_design_process_input(rl, state);
+            level_design_process_input(rl, ecs, state);
         }
         _ => {}
     }
 }
 
 ////////////////////////    PER GAME MODE INPUT PROCESSING     ////////////////////////
-pub fn title_process_input(rl: &mut RaylibHandle, state: &mut State) {
+pub fn title_process_input(rl: &mut RaylibHandle, ecs: &mut World, state: &mut State) {
     if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ESCAPE) {
         state.running = false;
     }
@@ -31,12 +35,12 @@ pub fn title_process_input(rl: &mut RaylibHandle, state: &mut State) {
     }
     if title_inputs.confirm {
         state.title_inputs = title_inputs;
-        state.level = 1;
         state.game_mode = GameMode::LevelDesign;
+        transition_to_level_design(rl, ecs, state);
     }
 }
 
-pub fn level_design_process_input(rl: &mut RaylibHandle, state: &mut State) {
+pub fn level_design_process_input(rl: &mut RaylibHandle, _ecs: &mut World, state: &mut State) {
     if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ESCAPE) {
         state.running = false;
     }
@@ -56,10 +60,10 @@ pub fn level_design_process_input(rl: &mut RaylibHandle, state: &mut State) {
         inputs.gas = true;
     }
     if rl.is_key_down(raylib::consts::KeyboardKey::KEY_S) {
-        inputs.brake = true;
+        inputs.reverse = true;
     }
     if rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE) {
-        inputs.drift_brake = true;
+        inputs.brake = true;
     }
 
     state.level_design_inputs = inputs;
@@ -79,8 +83,8 @@ pub struct LevelDesignInputs {
     pub left: bool,
     pub right: bool,
     pub gas: bool,
+    pub reverse: bool,
     pub brake: bool,
-    pub drift_brake: bool,
 
     pub confirm: bool,
 }
@@ -90,8 +94,8 @@ impl LevelDesignInputs {
             left: false,
             right: false,
             gas: false,
+            reverse: false,
             brake: false,
-            drift_brake: false,
 
             confirm: false,
         }

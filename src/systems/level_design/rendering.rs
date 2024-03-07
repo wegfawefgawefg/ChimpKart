@@ -5,7 +5,7 @@ use raylib::prelude::Color;
 
 use crate::{
     components::{
-        Ball, BallEater, Block, CTransform, Health, Paddle, Physics, Shape, StrongBlock, Wall,
+        Ball, BallEater, Block, CTransform, Car, Health, Paddle, Physics, Shape, StrongBlock, Wall,
     },
     physics_engine::m2p,
     render_commands::RenderCommand,
@@ -34,6 +34,24 @@ pub fn render(ecs: &World, state: &mut State) {
             start: checkpoint.a,
             end: checkpoint.b,
             color: Color::WHITE,
+        });
+    }
+    // render walls as grey
+    for wall in &map.walls {
+        state.render_command_buffer.push(RenderCommand::Line {
+            start: wall.a,
+            end: wall.b,
+            color: Color::GRAY,
+        });
+    }
+
+    // render cars
+    for (_, (ctransform, shape)) in ecs.query::<(&CTransform, &Shape)>().with::<&Car>().iter() {
+        state.render_command_buffer.push(RenderCommand::Car {
+            pos: ctransform.pos,
+            dims: shape.dims,
+            dir: ctransform.rot,
+            color: Color::RED,
         });
     }
 

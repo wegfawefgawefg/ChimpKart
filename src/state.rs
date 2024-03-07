@@ -125,6 +125,8 @@ pub struct Map {
     pub starting_line: Line,
     pub checkpoints: Vec<Line>,
     pub finish_line: Line,
+    pub walls: Vec<Line>,
+    pub starting_direction: Vec2,
 }
 
 impl Map {
@@ -155,6 +157,43 @@ impl Map {
                 a: Vec2::new(130.0, 19.0),
                 b: Vec2::new(130.0, 55.0),
             },
+            walls: vec![
+                // outer walls
+                Line {
+                    a: Vec2::new(117.0, 19.0),
+                    b: Vec2::new(33.0, 87.0),
+                },
+                Line {
+                    a: Vec2::new(33.0, 87.0),
+                    b: Vec2::new(117.0, 155.0),
+                },
+                Line {
+                    a: Vec2::new(117.0, 155.0),
+                    b: Vec2::new(209.0, 86.0),
+                },
+                Line {
+                    a: Vec2::new(209.0, 86.0),
+                    b: Vec2::new(130.0, 19.0),
+                },
+                // inner walls
+                Line {
+                    a: Vec2::new(117.0, 55.0),
+                    b: Vec2::new(86.0, 87.0),
+                },
+                Line {
+                    a: Vec2::new(86.0, 87.0),
+                    b: Vec2::new(117.0, 119.0),
+                },
+                Line {
+                    a: Vec2::new(117.0, 119.0),
+                    b: Vec2::new(136.0, 86.0),
+                },
+                Line {
+                    a: Vec2::new(136.0, 86.0),
+                    b: Vec2::new(130.0, 55.0),
+                },
+            ],
+            starting_direction: Vec2::new(-1.0, 0.0),
         }
     }
 }
@@ -162,4 +201,13 @@ impl Map {
 pub struct LevelDesignState {
     pub mode: LevelDesignMode,
     pub map: Box<Map>,
+}
+
+impl LevelDesignState {
+    pub fn new() -> Self {
+        Self {
+            mode: LevelDesignMode::PlaceLines,
+            map: Box::new(Map::new()),
+        }
+    }
 }

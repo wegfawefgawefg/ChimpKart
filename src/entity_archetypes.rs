@@ -6,8 +6,9 @@ use raylib::prelude::Color;
 
 use crate::{
     components::{
-        Ball, BallEater, Block, Bouncy, CTransform, HasRigidBody, Health, InputControlled, OwnedBy,
-        Paddle, Physics, Player, PositionManaged, Shape, StrongBlock, VelocityManaged, Wall,
+        Ball, BallEater, Block, Bouncy, CTransform, Car, HasRigidBody, Health, InputControlled,
+        OwnedBy, Paddle, Physics, Player, PositionManaged, Shape, StrongBlock, VelocityManaged,
+        Wall,
     },
     physics_engine::p2m,
     state::State,
@@ -205,6 +206,19 @@ pub fn spawn_walls(ecs: &mut World, state: &mut State) {
     // state
     //     .physics
     //     .set_rigid_body_mapping(right_wall, right_wall_body_handle);
+}
+
+pub const CAR_SHAPE: Vec2 = Vec2::new(8.0, 12.0);
+pub fn spawn_car(ecs: &mut World, state: &mut State, pos: Vec2, dir: Vec2) {
+    let car_entity = ecs.spawn((
+        Car,
+        CTransform { pos, rot: dir },
+        Physics {
+            vel: Vec2::ZERO,
+            rot_vel: 0.0,
+        },
+        Shape { dims: CAR_SHAPE },
+    ));
 }
 
 pub const BALL_SHAPE: Vec2 = Vec2::new(4.0, 4.0);

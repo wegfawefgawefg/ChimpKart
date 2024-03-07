@@ -17,9 +17,11 @@ mod physics_engine;
 mod render;
 mod render_commands;
 mod state;
+mod state_transitions;
 mod step;
 mod systems;
 mod timer;
+mod utils;
 mod window_helpers;
 
 pub const DIMS: UVec2 = UVec2::new(240, 160);
@@ -87,7 +89,7 @@ fn main() {
     let mut fps_history = std::collections::VecDeque::with_capacity(10);
     while state.running && !rl.window_should_close() {
         let time_a = std::time::Instant::now();
-        input_processing::process_input(&mut rl, &mut state);
+        input_processing::process_input(&mut rl, &mut ecs, &mut state);
 
         let dt = rl.get_frame_time();
         state.time_since_last_update += dt;

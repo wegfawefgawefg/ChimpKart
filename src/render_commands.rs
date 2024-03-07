@@ -1,16 +1,18 @@
 use glam::Vec2;
 use raylib::prelude::{Color, RaylibDraw, RaylibDrawHandle, RaylibTextureMode, Vector2};
 
+use crate::utils::radians_to_degrees;
+
 pub type RenderCommandBuffer = Vec<RenderCommand>;
 
 #[derive(Clone)]
 pub enum RenderCommand {
-    // Car {
-    //     pos: Vec2,
-    //     dims: Vec2,
-    //     color: Color,
-    //     dir: Vec2,
-    // },
+    Car {
+        pos: Vec2,
+        dims: Vec2,
+        color: Color,
+        dir: Vec2,
+    },
     ColoredSquare {
         pos: Vec2,
         color: Color,
@@ -58,6 +60,40 @@ pub fn execute_render_command_buffer(
 ) {
     for command in render_command_buffer.iter() {
         match command {
+            RenderCommand::Car {
+                pos,
+                dims,
+                color,
+                dir,
+            } => {
+                let center = Vector2::new(pos.x + dims.x / 2.0, pos.y + dims.y / 2.0);
+                /*
+                fn draw_rectangle_pro(
+                    &mut self,
+                    rec: impl Into<ffi::Rectangle>,
+                    origin: impl Into<ffi::Vector2>,
+                    rotation: f32,
+                    color: impl Into<ffi::Color>,
+                ) {
+                    unsafe {
+                        ffi::DrawRectanglePro(rec.into(), origin.into(), rotation, color.into());
+                    }
+                }
+                for reference
+                */
+                let rectangle = raylib::ffi::Rectangle {
+                    x: pos.x,
+                    y: pos.y,
+                    width: dims.x,
+                    height: dims.y,
+                };
+                d.draw_rectangle_pro(
+                    rectangle,
+                    Vector2::new(dims.x / 2.0, dims.y / 2.0),
+                    radians_to_degrees(dir.to_angle()) - 90.0,
+                    *color,
+                );
+            }
             RenderCommand::ColoredSquare { pos, color } => {
                 d.draw_rectangle(pos.x as i32, pos.y as i32, SIZE, SIZE, *color);
             }
