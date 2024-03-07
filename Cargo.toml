@@ -1,0 +1,17 @@
+[package]
+name = "chimpkart"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+glam = "0.25.0"
+hecs = "0.10.4"
+lazy_static = "1.4.0"
+nalgebra = "0.32.4"
+rand = "0.8.5"
+rapier2d = "0.18.0"
+raylib = "3.7.0"
+strum = "0.26.1"
+strum_macros = "0.26.1"
