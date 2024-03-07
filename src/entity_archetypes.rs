@@ -30,7 +30,7 @@ pub fn spawn_walls(ecs: &mut World, state: &mut State) {
     let top_wall = ecs.spawn((
         CTransform {
             pos,
-            rot: Vec2::new(0.0, 0.0),
+            dir: Vec2::new(0.0, 0.0),
         },
         shape,
         Wall,
@@ -67,7 +67,7 @@ pub fn spawn_walls(ecs: &mut World, state: &mut State) {
     let bottom_wall = ecs.spawn((
         CTransform {
             pos,
-            rot: Vec2::new(0.0, 0.0),
+            dir: Vec2::new(0.0, 0.0),
         },
         shape,
         Wall,
@@ -105,7 +105,7 @@ pub fn spawn_walls(ecs: &mut World, state: &mut State) {
     let left_wall = ecs.spawn((
         CTransform {
             pos,
-            rot: Vec2::new(0.0, 0.0),
+            dir: Vec2::new(0.0, 0.0),
         },
         shape,
         Wall,
@@ -142,7 +142,7 @@ pub fn spawn_walls(ecs: &mut World, state: &mut State) {
     let right_wall = ecs.spawn((
         CTransform {
             pos,
-            rot: Vec2::new(0.0, 0.0),
+            dir: Vec2::new(0.0, 0.0),
         },
         shape,
         Wall,
@@ -211,8 +211,8 @@ pub fn spawn_walls(ecs: &mut World, state: &mut State) {
 pub const CAR_SHAPE: Vec2 = Vec2::new(8.0, 12.0);
 pub fn spawn_car(ecs: &mut World, state: &mut State, pos: Vec2, dir: Vec2) {
     let car_entity = ecs.spawn((
-        Car,
-        CTransform { pos, rot: dir },
+        Car { tires_dir: dir },
+        CTransform { pos, dir },
         Physics {
             vel: Vec2::ZERO,
             rot_vel: 0.0,
@@ -227,7 +227,7 @@ pub fn spawn_ball(ecs: &mut World, state: &mut State, pos: Vec2, vel: Vec2, owne
         Ball,
         CTransform {
             pos,
-            rot: Vec2::new(0.0, 0.0),
+            dir: Vec2::new(0.0, 0.0),
         },
         Physics { vel, rot_vel: 0.0 },
         OwnedBy { owner },
@@ -277,7 +277,7 @@ pub fn spawn_block(
     let block_entity = ecs.spawn((
         CTransform {
             pos,
-            rot: Vec2::new(0.0, 1.0),
+            dir: Vec2::new(0.0, 1.0),
         },
         Shape { dims: shape },
         Block { color },
@@ -323,7 +323,7 @@ pub fn spawn_paddle(
     let paddle_entity = ecs.spawn((
         CTransform {
             pos,
-            rot: Vec2::new(0.0, 0.0),
+            dir: Vec2::new(0.0, 0.0),
         },
         Physics {
             vel: Vec2::ZERO,

@@ -21,7 +21,7 @@ pub fn process_inputs(ecs: &mut World, state: &mut State) {
     {
         // gas
         if state.level_design_inputs.gas {
-            let dir = ctransform.rot;
+            let dir = ctransform.dir;
             physics.vel += dir * ACC_FORCE;
         }
 
@@ -50,19 +50,19 @@ pub fn process_inputs(ecs: &mut World, state: &mut State) {
 
         // rotate
         if state.level_design_inputs.left {
-            let new_angle = ctransform.rot.to_angle() - ROT_SPEED;
-            ctransform.rot = Vec2::from_angle(new_angle);
+            let new_angle = ctransform.dir.to_angle() - ROT_SPEED;
+            ctransform.dir = Vec2::from_angle(new_angle);
 
             let vel_mag = physics.vel.length();
-            let new_vel = ctransform.rot * vel_mag * ROT_SPEED_LOSS_FRAC;
+            let new_vel = ctransform.dir * vel_mag * ROT_SPEED_LOSS_FRAC;
             physics.vel = vec2_lerp(physics.vel, new_vel, HANDLING);
         }
         if state.level_design_inputs.right {
-            let new_angle = ctransform.rot.to_angle() + ROT_SPEED;
-            ctransform.rot = Vec2::from_angle(new_angle);
+            let new_angle = ctransform.dir.to_angle() + ROT_SPEED;
+            ctransform.dir = Vec2::from_angle(new_angle);
 
             let vel_mag = physics.vel.length();
-            let new_vel = ctransform.rot * vel_mag * ROT_SPEED_LOSS_FRAC;
+            let new_vel = ctransform.dir * vel_mag * ROT_SPEED_LOSS_FRAC;
             physics.vel = vec2_lerp(physics.vel, new_vel, HANDLING);
         }
 

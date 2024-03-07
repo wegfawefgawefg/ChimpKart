@@ -11,7 +11,7 @@ pub fn step_physics(ecs: &World, state: &mut State) {
     // step
     for (_, (ctransform, physics)) in ecs.query::<(&mut CTransform, &mut Physics)>().iter() {
         ctransform.pos += physics.vel;
-        ctransform.rot += physics.rot_vel;
+        ctransform.dir += physics.rot_vel;
     }
 
     // speed clamp

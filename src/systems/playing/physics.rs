@@ -86,7 +86,7 @@ pub fn step_physics(ecs: &World, state: &mut State) {
                     m2p(center.y) - shape.dims.y / 2.0,
                 );
                 ctransform.pos = pos;
-                ctransform.rot = Vec2::new(rot.cos(), rot.sin());
+                ctransform.dir = Vec2::new(rot.cos(), rot.sin());
             }
         }
     }

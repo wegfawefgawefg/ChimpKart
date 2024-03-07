@@ -5,11 +5,13 @@ use raylib::prelude::Color;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CTransform {
     pub pos: Vec2,
-    pub rot: Vec2,
+    pub dir: Vec2,
 }
 
 pub struct Player;
-pub struct Car;
+pub struct Car {
+    pub tires_dir: Vec2,
+}
 pub struct Ball;
 pub struct Bouncy;
 

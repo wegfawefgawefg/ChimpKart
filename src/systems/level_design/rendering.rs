@@ -50,7 +50,7 @@ pub fn render(ecs: &World, state: &mut State) {
         state.render_command_buffer.push(RenderCommand::Car {
             pos: ctransform.pos,
             dims: shape.dims,
-            dir: ctransform.rot,
+            dir: ctransform.dir,
             color: Color::RED,
         });
     }
