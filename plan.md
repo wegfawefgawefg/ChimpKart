@@ -33,4 +33,5 @@ bonus:
     speedzone
     breakable cars
         a pit
+    jumps
 

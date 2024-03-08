@@ -77,9 +77,9 @@ fn main() {
 
     ////////////////    INIT AUDIO    ////////////////
     let mut audio = audio::Audio::new(&mut rl, &rlt);
-    audio
-        .rl_audio_device
-        .play_music_stream(&mut audio.songs[Song::Playing as usize]);
+    // audio
+    //     .rl_audio_device
+    //     .play_music_stream(&mut audio.songs[Song::Playing as usize]);
 
     ////////////////    INIT STATE    ////////////////
     let mut state = state::State::new();

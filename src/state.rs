@@ -141,7 +141,7 @@ impl Map {
                 // 33,87 to 86, 87
                 Line {
                     a: Vec2::new(33.0, 87.0),
-                    b: Vec2::new(86.0, 87.0),
+                    b: Vec2::new(100.0, 87.0),
                 },
                 // starting line, but down 100 pixels
                 Line {
@@ -179,10 +179,10 @@ impl Map {
                 // inner walls
                 Line {
                     a: Vec2::new(117.0, 55.0),
-                    b: Vec2::new(86.0, 87.0),
+                    b: Vec2::new(100.0, 87.0),
                 },
                 Line {
-                    a: Vec2::new(86.0, 87.0),
+                    a: Vec2::new(100.0, 87.0),
                     b: Vec2::new(117.0, 119.0),
                 },
                 Line {

@@ -216,7 +216,10 @@ pub fn spawn_walls(ecs: &mut World, state: &mut State) {
 //  so if a car is facing left or right, the long part is the x dimension
 //  but if it's facing up or down, the long part is the y dimension
 pub const CAR_SHAPE: Vec2 = Vec2::new(12.0, 8.0);
-pub fn spawn_car(ecs: &mut World, state: &mut State, pos: Vec2, dir: Vec2) {
+pub const CAR_LINEAR_DAMPENING: f32 = 0.5;
+pub const CAR_ANGULAR_DAMPENING: f32 = 4.0;
+pub const CAR_MASS: f32 = 1.0;
+pub fn spawn_car(ecs: &mut World, state: &mut State, pos: Vec2, dir: Vec2) -> Entity {
     let car_entity = ecs.spawn((
         Car { tires_dir: dir },
         CTransform { pos, dir },
@@ -233,19 +236,19 @@ pub fn spawn_car(ecs: &mut World, state: &mut State, pos: Vec2, dir: Vec2) {
     println!("dir: {:?}", dir);
 
     let car_collider = ColliderBuilder::cuboid(p2m(CAR_SHAPE.x) / 2.0, p2m(CAR_SHAPE.y) / 2.0)
-        .restitution(1.0)
+        .restitution(0.2)
         .friction(0.0)
-        .mass(0.0001)
+        .mass(CAR_MASS)
         .active_events(ActiveEvents::COLLISION_EVENTS)
         .collision_groups(InteractionGroups::new(0b0001.into(), 0b0001.into()))
         .build();
     let car_rigid_body = RigidBodyBuilder::dynamic()
         .translation(vector![p2m(pos.x), p2m(pos.y)])
-        // .rotation(angle)
+        .rotation(angle)
         .linvel(vector![p2m(0.0), p2m(0.0)])
         // .lock_rotations()
-        .linear_damping(0.0)
-        .angular_damping(0.0)
+        .linear_damping(CAR_LINEAR_DAMPENING)
+        .angular_damping(CAR_ANGULAR_DAMPENING)
         .can_sleep(false)
         .ccd_enabled(true)
         .build();
@@ -258,9 +261,11 @@ pub fn spawn_car(ecs: &mut World, state: &mut State, pos: Vec2, dir: Vec2) {
     state
         .physics
         .set_rigid_body_mapping(car_entity, car_body_handle);
+
+    car_entity
 }
 
-pub fn spawn_wall(ecs: &mut World, state: &mut State, start: Vec2, end: Vec2) {
+pub fn spawn_wall(ecs: &mut World, state: &mut State, start: Vec2, end: Vec2) -> Entity {
     let length = (end - start).length();
     let wall_entity = ecs.spawn((
         Wall,
@@ -291,6 +296,8 @@ pub fn spawn_wall(ecs: &mut World, state: &mut State, start: Vec2, end: Vec2) {
     state
         .physics
         .set_rigid_body_mapping(wall_entity, wall_body_handle);
+
+    wall_entity
 }
 
 pub const BALL_SHAPE: Vec2 = Vec2::new(4.0, 4.0);
