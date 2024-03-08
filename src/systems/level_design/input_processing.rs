@@ -12,7 +12,7 @@ pub const REVERSE_FORCE: f32 = 0.01;
 pub const BREAK_FORCE: f32 = 0.01;
 pub const ROT_SPEED: f32 = 0.03;
 pub const ROT_SPEED_LOSS_FRAC: f32 = 0.99;
-pub const HANDLING: f32 = 0.1;
+pub const HANDLING: f32 = 0.3;
 pub fn process_inputs(ecs: &mut World, state: &mut State) {
     for (_, (ctransform, physics)) in ecs
         .query::<(&mut CTransform, &mut Physics)>()
@@ -27,7 +27,6 @@ pub fn process_inputs(ecs: &mut World, state: &mut State) {
 
         let velmag = physics.vel.length();
         let veldir = physics.vel.normalize();
-        println!("vel: {}, dir: {}", velmag, veldir);
         // brake
         if state.level_design_inputs.brake {
             // do nothing if car not moving

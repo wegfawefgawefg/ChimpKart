@@ -27,6 +27,7 @@ pub struct Health {
 
 pub struct StrongBlock;
 
+pub struct Wall;
 pub struct Paddle {
     pub size: u32,
 }
@@ -79,7 +80,6 @@ pub struct LookAt {
 #[derive(Clone, Copy)]
 pub struct Enemy;
 
-pub struct Wall;
 pub struct BallEater;
 
 pub struct HasRigidBody;

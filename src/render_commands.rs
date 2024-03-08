@@ -1,14 +1,20 @@
 use glam::Vec2;
 use raylib::prelude::{Color, RaylibDraw, RaylibDrawHandle, RaylibTextureMode, Vector2};
 
-use crate::utils::radians_to_degrees;
+use crate::utils::{degrees_to_radians, radians_to_degrees};
 
 pub type RenderCommandBuffer = Vec<RenderCommand>;
 
 #[derive(Clone)]
 pub enum RenderCommand {
-    Car {
+    Rect {
         pos: Vec2,
+        dims: Vec2,
+        color: Color,
+        dir: Vec2,
+    },
+    LinesRect {
+        center: Vec2,
         dims: Vec2,
         color: Color,
         dir: Vec2,
@@ -16,13 +22,6 @@ pub enum RenderCommand {
     ColoredSquare {
         pos: Vec2,
         color: Color,
-    },
-    Block {
-        pos: Vec2,
-        dims: Vec2,
-        color: Color,
-        hp: u32,
-        ball_unbreakable: bool,
     },
     Text {
         pos: Vec2,
@@ -47,12 +46,7 @@ pub enum RenderCommand {
     },
 }
 
-// defualt entity size
-const SIZE: i32 = 1;
-const SEGMENTS: usize = 12;
-static RADIUS_VARIATIONS: [f32; SEGMENTS] = [
-    0.8, 0.75, 0.9, 0.85, 0.7, 0.88, 0.95, 0.78, 0.92, 0.76, 0.87, 0.8,
-];
+const LINE_THICKNESS: i32 = 1;
 
 pub fn execute_render_command_buffer(
     d: &mut RaylibTextureMode<RaylibDrawHandle>,
@@ -60,27 +54,13 @@ pub fn execute_render_command_buffer(
 ) {
     for command in render_command_buffer.iter() {
         match command {
-            RenderCommand::Car {
+            RenderCommand::Rect {
                 pos,
                 dims,
                 color,
                 dir,
             } => {
                 let center = Vector2::new(pos.x + dims.x / 2.0, pos.y + dims.y / 2.0);
-                /*
-                fn draw_rectangle_pro(
-                    &mut self,
-                    rec: impl Into<ffi::Rectangle>,
-                    origin: impl Into<ffi::Vector2>,
-                    rotation: f32,
-                    color: impl Into<ffi::Color>,
-                ) {
-                    unsafe {
-                        ffi::DrawRectanglePro(rec.into(), origin.into(), rotation, color.into());
-                    }
-                }
-                for reference
-                */
                 let rectangle = raylib::ffi::Rectangle {
                     x: pos.x,
                     y: pos.y,
@@ -94,41 +74,42 @@ pub fn execute_render_command_buffer(
                     *color,
                 );
             }
-            RenderCommand::ColoredSquare { pos, color } => {
-                d.draw_rectangle(pos.x as i32, pos.y as i32, SIZE, SIZE, *color);
-            }
-            RenderCommand::Block {
-                pos,
+            RenderCommand::LinesRect {
+                center,
                 dims,
                 color,
-                hp,
-                ball_unbreakable,
+                dir,
             } => {
-                if *ball_unbreakable {
-                    d.draw_rectangle(
-                        pos.x as i32,
-                        pos.y as i32,
-                        dims.x as i32,
-                        dims.y as i32,
-                        *color,
-                    );
-                    continue;
-                } else {
-                    d.draw_rectangle_lines(
-                        pos.x as i32,
-                        pos.y as i32,
-                        dims.x as i32,
-                        dims.y as i32,
-                        color,
-                    );
-                    if *hp > 1 {
-                        d.draw_line_v(
-                            Vector2::new(pos.x, pos.y),
-                            Vector2::new(pos.x + dims.x - 1.0, pos.y + dims.y),
-                            *color,
-                        );
-                    }
-                }
+                // let dir = Vec2::from_angle(degrees_to_radians(90.0)).rotate(*dir);
+                let half_dims = *dims / 2.0;
+                let a = *center + Vec2::new(-half_dims.x, -half_dims.y);
+                let b = *center + Vec2::new(half_dims.x, -half_dims.y);
+                let c = *center + Vec2::new(half_dims.x, half_dims.y);
+                let dd = *center + Vec2::new(-half_dims.x, half_dims.y);
+
+                let to_a = a - *center;
+                let to_b = b - *center;
+                let to_c = c - *center;
+                let to_d = dd - *center;
+
+                let a = *center + dir.rotate(to_a);
+                let b = *center + dir.rotate(to_b);
+                let c = *center + dir.rotate(to_c);
+                let dd = *center + dir.rotate(to_d);
+
+                d.draw_line(a.x as i32, a.y as i32, b.x as i32, b.y as i32, color);
+                d.draw_line(b.x as i32, b.y as i32, c.x as i32, c.y as i32, color);
+                d.draw_line(c.x as i32, c.y as i32, dd.x as i32, dd.y as i32, color);
+                d.draw_line(dd.x as i32, dd.y as i32, a.x as i32, a.y as i32, color);
+            }
+            RenderCommand::ColoredSquare { pos, color } => {
+                d.draw_rectangle(
+                    pos.x as i32,
+                    pos.y as i32,
+                    LINE_THICKNESS,
+                    LINE_THICKNESS,
+                    *color,
+                );
             }
             RenderCommand::Text {
                 pos,

@@ -116,6 +116,7 @@ impl ToString for LevelDesignMode {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct Line {
     pub a: Vec2,
     pub b: Vec2,

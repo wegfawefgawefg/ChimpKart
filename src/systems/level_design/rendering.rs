@@ -46,14 +46,14 @@ pub fn render(ecs: &World, state: &mut State) {
     }
 
     // render cars
-    for (_, (ctransform, shape)) in ecs.query::<(&CTransform, &Shape)>().with::<&Car>().iter() {
-        state.render_command_buffer.push(RenderCommand::Car {
-            pos: ctransform.pos,
-            dims: shape.dims,
-            dir: ctransform.dir,
-            color: Color::RED,
-        });
-    }
+    // for (_, (ctransform, shape)) in ecs.query::<(&CTransform, &Shape)>().with::<&Car>().iter() {
+    //     state.render_command_buffer.push(RenderCommand::Rect {
+    //         pos: ctransform.pos,
+    //         dims: shape.dims,
+    //         dir: ctransform.dir,
+    //         color: Color::RED,
+    //     });
+    // }
 
     // render_physics(state);
 
@@ -127,43 +127,4 @@ pub fn render(ecs: &World, state: &mut State) {
     //     size,
     //     color: Color::WHITE,
     // });
-}
-
-pub fn render_physics(state: &mut State) {
-    // Render colliders
-    for (_, collider) in state.physics.collider_set.iter() {
-        let center = collider.position().translation.vector;
-        let shape = collider.shape();
-        let shape_type = shape.shape_type();
-
-        if let ShapeType::Cuboid = shape_type {
-            let cuboid = shape.as_cuboid().unwrap();
-            let tl = center + -cuboid.half_extents;
-            let size = cuboid.half_extents * 2.0;
-
-            let ppos = Vec2::new(m2p(tl.x), m2p(tl.y));
-            let psize = Vec2::new(m2p(size.x), m2p(size.y));
-            state.render_command_buffer.push(RenderCommand::Block {
-                pos: ppos,
-                dims: psize,
-                color: Color::RED, // or any color you prefer for debug
-                hp: 1,
-                ball_unbreakable: false,
-            });
-        }
-    }
-
-    // Render rigid bodies (Optional, if you need to distinguish them)
-    for (_, rigid_body) in state.physics.rigid_body_set.iter() {
-        let pos = rigid_body.position().translation.vector;
-        let rot = rigid_body.position().rotation.angle();
-
-        let ppos = Vec2::new(m2p(pos.x), m2p(pos.y));
-        let prot = Vec2::new(rot.cos(), rot.sin());
-        state.render_command_buffer.push(RenderCommand::Line {
-            start: ppos,
-            end: ppos + prot * 10.0,
-            color: Color::GREEN, // or any color you prefer for debug
-        });
-    }
 }

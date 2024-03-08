@@ -44,37 +44,6 @@ pub fn render(ecs: &World, state: &mut State) {
             });
     }
 
-    // render every player as a paddle
-    // for (_, (_, ctransform, shape)) in ecs.query::<(&Paddle, &CTransform, &Shape)>().iter() {
-    //     state.render_command_buffer.push(RenderCommand::Paddle {
-    //         pos: ctransform.pos,
-    //         dims: shape.dims,
-    //         color: Color::RAYWHITE,
-    //     })
-    // }
-
-    // render every block
-    for (entity, (block, ctransform, shape, health)) in
-        ecs.query::<(&Block, &CTransform, &Shape, &Health)>().iter()
-    {
-        let ball_unbreakable = ecs.satisfies::<&StrongBlock>(entity).unwrap_or(false);
-        state.render_command_buffer.push(RenderCommand::Block {
-            pos: ctransform.pos,
-            dims: shape.dims,
-            color: block.color,
-            hp: health.hp,
-            ball_unbreakable,
-        })
-    }
-
-    // render ball
-    // for (_, (_, ctransform, shape)) in ecs.query::<(&Ball, &CTransform, &Shape)>().iter() {
-    //     state.render_command_buffer.push(RenderCommand::Ball {
-    //         pos: ctransform.pos,
-    //         dims: shape.dims,
-    //     })
-    // }
-
     // render the level in the top right
     let cursor = Vec2::new(DIMS.x as f32 - 50.0, DIMS.y as f32 - 20.0);
     let size = 1;
@@ -84,43 +53,4 @@ pub fn render(ecs: &World, state: &mut State) {
         size,
         color: Color::WHITE,
     });
-}
-
-pub fn render_physics(state: &mut State) {
-    // Render colliders
-    for (_, collider) in state.physics.collider_set.iter() {
-        let center = collider.position().translation.vector;
-        let shape = collider.shape();
-        let shape_type = shape.shape_type();
-
-        if let ShapeType::Cuboid = shape_type {
-            let cuboid = shape.as_cuboid().unwrap();
-            let tl = center + -cuboid.half_extents;
-            let size = cuboid.half_extents * 2.0;
-
-            let ppos = Vec2::new(m2p(tl.x), m2p(tl.y));
-            let psize = Vec2::new(m2p(size.x), m2p(size.y));
-            state.render_command_buffer.push(RenderCommand::Block {
-                pos: ppos,
-                dims: psize,
-                color: Color::RED, // or any color you prefer for debug
-                hp: 1,
-                ball_unbreakable: false,
-            });
-        }
-    }
-
-    // Render rigid bodies (Optional, if you need to distinguish them)
-    for (_, rigid_body) in state.physics.rigid_body_set.iter() {
-        let pos = rigid_body.position().translation.vector;
-        let rot = rigid_body.position().rotation.angle();
-
-        let ppos = Vec2::new(m2p(pos.x), m2p(pos.y));
-        let prot = Vec2::new(rot.cos(), rot.sin());
-        state.render_command_buffer.push(RenderCommand::Line {
-            start: ppos,
-            end: ppos + prot * 10.0,
-            color: Color::GREEN, // or any color you prefer for debug
-        });
-    }
 }

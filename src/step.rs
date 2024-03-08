@@ -45,6 +45,8 @@ pub fn playing_step(state: &mut State, ecs: &mut World) {
 
 pub fn level_design_step(state: &mut State, ecs: &mut World) {
     systems::level_design::input_processing::process_inputs(ecs, state);
-    systems::level_design::physics::step_physics(ecs, state);
+    // systems::level_design::physics::step_physics(ecs, state);
+    systems::playing::physics::step_physics(ecs, state);
     systems::level_design::rendering::render(ecs, state);
+    systems::common::rendering::render_physics(state);
 }

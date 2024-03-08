@@ -101,21 +101,6 @@ pub fn step_physics(ecs: &World, state: &mut State) {
         }
     }
 
-    // paddle specifically
-    for (entity, (ctransform, shape)) in ecs
-        .query::<(&mut CTransform, &Shape)>()
-        .with::<&Paddle>()
-        .iter()
-    {
-        if let Some(body) = state.physics.get_rigid_body_handle(entity) {
-            if let Some(rigid_body) = state.physics.rigid_body_set.get(body) {
-                let center = rigid_body.position().translation.vector;
-                ctransform.pos.x = m2p(center.x) - shape.dims.x / 2.0;
-                ctransform.pos.y = m2p(center.y) - shape.dims.y / 2.0;
-            }
-        }
-    }
-
     // store all collision events for later iteration
     state.physics.collision_events.clear();
     while let Ok(event) = state.physics.collision_recv.try_recv() {

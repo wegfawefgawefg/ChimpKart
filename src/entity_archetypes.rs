@@ -1,7 +1,10 @@
 use glam::Vec2;
 use hecs::{Entity, World};
 use nalgebra::vector;
-use rapier2d::prelude::{ActiveEvents, ColliderBuilder, InteractionGroups, RigidBodyBuilder};
+use rapier2d::{
+    math::Point,
+    prelude::{ActiveEvents, ColliderBuilder, InteractionGroups, RigidBodyBuilder},
+};
 use raylib::prelude::Color;
 
 use crate::{
@@ -12,6 +15,7 @@ use crate::{
     },
     physics_engine::p2m,
     state::State,
+    utils::radians_to_degrees,
     DIMS,
 };
 
@@ -208,7 +212,10 @@ pub fn spawn_walls(ecs: &mut World, state: &mut State) {
     //     .set_rigid_body_mapping(right_wall, right_wall_body_handle);
 }
 
-pub const CAR_SHAPE: Vec2 = Vec2::new(8.0, 12.0);
+// NOTE: the 0 angle is to the right, so width is the x dimension, and height is the y dimension
+//  so if a car is facing left or right, the long part is the x dimension
+//  but if it's facing up or down, the long part is the y dimension
+pub const CAR_SHAPE: Vec2 = Vec2::new(12.0, 8.0);
 pub fn spawn_car(ecs: &mut World, state: &mut State, pos: Vec2, dir: Vec2) {
     let car_entity = ecs.spawn((
         Car { tires_dir: dir },
@@ -218,7 +225,72 @@ pub fn spawn_car(ecs: &mut World, state: &mut State, pos: Vec2, dir: Vec2) {
             rot_vel: 0.0,
         },
         Shape { dims: CAR_SHAPE },
+        HasRigidBody,
     ));
+    // print original angle
+    let angle = dir.to_angle();
+    println!("angle: {}", angle);
+    println!("dir: {:?}", dir);
+
+    let car_collider = ColliderBuilder::cuboid(p2m(CAR_SHAPE.x) / 2.0, p2m(CAR_SHAPE.y) / 2.0)
+        .restitution(1.0)
+        .friction(0.0)
+        .mass(0.0001)
+        .active_events(ActiveEvents::COLLISION_EVENTS)
+        .collision_groups(InteractionGroups::new(0b0001.into(), 0b0001.into()))
+        .build();
+    let car_rigid_body = RigidBodyBuilder::dynamic()
+        .translation(vector![p2m(pos.x), p2m(pos.y)])
+        // .rotation(angle)
+        .linvel(vector![p2m(0.0), p2m(0.0)])
+        // .lock_rotations()
+        .linear_damping(0.0)
+        .angular_damping(0.0)
+        .can_sleep(false)
+        .ccd_enabled(true)
+        .build();
+    let car_body_handle = state.physics.rigid_body_set.insert(car_rigid_body);
+    state.physics.collider_set.insert_with_parent(
+        car_collider,
+        car_body_handle,
+        &mut state.physics.rigid_body_set,
+    );
+    state
+        .physics
+        .set_rigid_body_mapping(car_entity, car_body_handle);
+}
+
+pub fn spawn_wall(ecs: &mut World, state: &mut State, start: Vec2, end: Vec2) {
+    let length = (end - start).length();
+    let wall_entity = ecs.spawn((
+        Wall,
+        CTransform {
+            pos: start,
+            dir: (end - start).normalize(),
+        },
+        Shape {
+            dims: Vec2::new(length, 0.0),
+        },
+        HasRigidBody,
+    ));
+
+    let wall_collider = ColliderBuilder::segment(
+        Point::new(p2m(start.x), p2m(start.y)),
+        Point::new(p2m(end.x), p2m(end.y)),
+    )
+    .active_events(ActiveEvents::COLLISION_EVENTS)
+    .collision_groups(InteractionGroups::new(0b0001.into(), 0b0001.into()))
+    .build();
+    let wall_rigid_body = RigidBodyBuilder::fixed().build();
+    let wall_body_handle = state.physics.rigid_body_set.insert(wall_rigid_body);
+    state.physics.collider_set.insert_with_parent(
+        wall_collider,
+        wall_body_handle,
+        &mut state.physics.rigid_body_set,
+    );
+    state
+        .physics
+        .set_rigid_body_mapping(wall_entity, wall_body_handle);
 }
 
 pub const BALL_SHAPE: Vec2 = Vec2::new(4.0, 4.0);
