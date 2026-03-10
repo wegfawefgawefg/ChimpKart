@@ -5,15 +5,15 @@ use crate::state::State;
 
 pub fn center_window(rl: &mut raylib::RaylibHandle, window_dims: UVec2) {
     let current_monitor = get_current_monitor();
+    let monitor_x = get_monitor_position(current_monitor).x.round() as i32;
+    let monitor_y = get_monitor_position(current_monitor).y.round() as i32;
     let monitor_width = get_monitor_width(current_monitor);
     let monitor_height = get_monitor_height(current_monitor);
     let screen_dims = UVec2::new(monitor_width as u32, monitor_height as u32);
-    println!("Screen dims: {:?}", screen_dims);
     let screen_center = screen_dims / 2;
     let window_center = window_dims / 2;
-    let mut pos = screen_center - window_center;
-    pos.y += 500;
-    rl.set_window_position(pos.x as i32, pos.y as i32);
+    let pos = screen_center - window_center;
+    rl.set_window_position(monitor_x + pos.x as i32, monitor_y + pos.y as i32);
     rl.set_target_fps(144);
 }
 
@@ -39,7 +39,7 @@ pub fn scale_and_blit_render_texture_to_window(
     large_render_texture: &mut RenderTexture2D,
     fullscreen: bool,
     window_dims: UVec2,
-    shaders: &[Shader],
+    shaders: &mut [Shader],
 ) {
     let source_rec = Rectangle::new(
         0.0,
@@ -91,7 +91,7 @@ pub fn scale_and_blit_render_texture_to_window(
         -large_render_texture.texture.height as f32,
     );
     let dest_rec = Rectangle::new(0.0, 0.0, window_dims.x as f32, window_dims.y as f32);
-    let mut shaded_draw_handle = draw_handle.begin_shader_mode(&shaders[0]);
+    let mut shaded_draw_handle = draw_handle.begin_shader_mode(&mut shaders[0]);
     shaded_draw_handle.draw_texture_pro(
         large_render_texture,
         source_rec,

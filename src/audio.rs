@@ -34,24 +34,27 @@ pub enum SoundEffect {
     LevelLost,
 }
 
-pub struct Audio {
-    pub rl_audio_device: RaylibAudio,
-    pub songs: Vec<Music>,
-    pub sounds: Vec<Sound>,
+pub struct Audio<'aud> {
+    pub rl_audio_device: &'aud RaylibAudio,
+    pub songs: Vec<Music<'aud>>,
+    pub sounds: Vec<Sound<'aud>>,
     pub music_volume: f32,
     pub sound_effects_volume: f32,
 }
 
-impl Audio {
-    pub fn new(_rl: &mut RaylibHandle, rlt: &RaylibThread) -> Self {
-        let rl_audio_device = RaylibAudio::init_audio_device();
+impl<'aud> Audio<'aud> {
+    pub fn new(_rl: &mut RaylibHandle, _rlt: &RaylibThread) -> Self {
+        let rl_audio_device = Box::leak(Box::new(
+            RaylibAudio::init_audio_device().expect("Error initializing audio"),
+        ));
 
         let error = "Error loading audio";
         let mut songs = Vec::new();
         let file_names = vec!["playing"];
         for name in file_names {
             let path = format!("assets/music/{}.ogg", name);
-            let music = Music::load_music_stream(rlt, path.as_str()).expect(error);
+            let music = rl_audio_device.new_music(path.as_str()).expect(error);
+            music.set_volume(1.0);
             songs.push(music);
         }
 
@@ -61,8 +64,8 @@ impl Audio {
         for sound_effect in SoundEffect::iter() {
             let file_name_prefix = get_sound_file_name(sound_effect);
             let path = format!("assets/sounds/{}.ogg", file_name_prefix);
-            // let music = Music::load_music_stream(rlt, path.as_str()).expect(error);
-            let sound = Sound::load_sound(path.as_str()).expect(error);
+            let sound = rl_audio_device.new_sound(path.as_str()).expect(error);
+            sound.set_volume(1.0);
             sounds.push(sound);
         }
 
