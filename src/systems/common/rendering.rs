@@ -38,11 +38,11 @@ pub fn render_physics(state: &mut State) {
         let rot = Vec2::from_angle(rot);
 
         let ppos = Vec2::new(m2p(pos.x), m2p(pos.y));
-        state.render_command_buffer.push(RenderCommand::Line {
-            start: ppos,
-            end: ppos + rot * 10.0,
-            color: Color::GREEN, // or any color you prefer for debug
-        });
+        // state.render_command_buffer.push(RenderCommand::Line {
+        //     start: ppos,
+        //     end: ppos + rot * 10.0,
+        //     color: Color::GREEN, // or any color you prefer for debug
+        // });
 
         for collider_handle in rigid_body.colliders().iter() {
             if let Some(collider) = state.physics.collider_set.get_mut(*collider_handle) {

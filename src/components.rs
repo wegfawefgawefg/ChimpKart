@@ -12,6 +12,7 @@ pub struct Player;
 pub struct Car {
     pub tires_dir: Vec2,
 }
+pub struct Trailer;
 pub struct Ball;
 pub struct Bouncy;
 

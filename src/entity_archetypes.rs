@@ -2,6 +2,7 @@ use glam::Vec2;
 use hecs::{Entity, World};
 use nalgebra::vector;
 use rapier2d::{
+    dynamics::RevoluteJointBuilder,
     math::Point,
     prelude::{ActiveEvents, ColliderBuilder, InteractionGroups, RigidBodyBuilder},
 };
@@ -10,8 +11,8 @@ use raylib::prelude::Color;
 use crate::{
     components::{
         Ball, BallEater, Block, Bouncy, CTransform, Car, HasRigidBody, Health, InputControlled,
-        OwnedBy, Paddle, Physics, Player, PositionManaged, Shape, StrongBlock, VelocityManaged,
-        Wall,
+        OwnedBy, Paddle, Physics, Player, PositionManaged, Shape, StrongBlock, Trailer,
+        VelocityManaged, Wall,
     },
     physics_engine::p2m,
     state::State,
@@ -216,7 +217,7 @@ pub fn spawn_walls(ecs: &mut World, state: &mut State) {
 //  so if a car is facing left or right, the long part is the x dimension
 //  but if it's facing up or down, the long part is the y dimension
 pub const CAR_SHAPE: Vec2 = Vec2::new(12.0, 8.0);
-pub const CAR_LINEAR_DAMPENING: f32 = 0.5;
+pub const CAR_LINEAR_DAMPENING: f32 = 0.2; //0.5;
 pub const CAR_ANGULAR_DAMPENING: f32 = 4.0;
 pub const CAR_MASS: f32 = 1.0;
 pub fn spawn_car(ecs: &mut World, state: &mut State, pos: Vec2, dir: Vec2) -> Entity {
@@ -261,6 +262,115 @@ pub fn spawn_car(ecs: &mut World, state: &mut State, pos: Vec2, dir: Vec2) -> En
     state
         .physics
         .set_rigid_body_mapping(car_entity, car_body_handle);
+
+    let pos = Vec2::new(pos.x + CAR_SHAPE.x * 2.0, pos.y);
+    let trailer_entity = ecs.spawn((
+        Car { tires_dir: dir },
+        Trailer,
+        CTransform { pos, dir },
+        Physics {
+            vel: Vec2::ZERO,
+            rot_vel: 0.0,
+        },
+        Shape { dims: CAR_SHAPE },
+        HasRigidBody,
+    ));
+    // print original angle
+    let angle = dir.to_angle();
+    println!("angle: {}", angle);
+    println!("dir: {:?}", dir);
+
+    let trailer_collider = ColliderBuilder::cuboid(p2m(CAR_SHAPE.x) / 2.0, p2m(CAR_SHAPE.y) / 2.0)
+        .restitution(0.2)
+        .friction(0.0)
+        .mass(CAR_MASS)
+        .active_events(ActiveEvents::COLLISION_EVENTS)
+        .collision_groups(InteractionGroups::new(0b0001.into(), 0b0001.into()))
+        .build();
+    let trailer_rigid_body = RigidBodyBuilder::dynamic()
+        .translation(vector![p2m(pos.x), p2m(pos.y)])
+        .rotation(angle)
+        .linvel(vector![p2m(0.0), p2m(0.0)])
+        // .lock_rotations()
+        .linear_damping(CAR_LINEAR_DAMPENING)
+        .angular_damping(CAR_ANGULAR_DAMPENING)
+        .can_sleep(false)
+        .ccd_enabled(true)
+        .build();
+    let trailer_body_handle = state.physics.rigid_body_set.insert(trailer_rigid_body);
+    state.physics.collider_set.insert_with_parent(
+        trailer_collider,
+        trailer_body_handle,
+        &mut state.physics.rigid_body_set,
+    );
+    state
+        .physics
+        .set_rigid_body_mapping(trailer_entity, trailer_body_handle);
+
+    // skinny stick from left end of trailer to right end of car
+    let a = Vec2::new(pos.x - CAR_SHAPE.x * 4.0, pos.y);
+    let b = Vec2::new(pos.x + CAR_SHAPE.x * 2.0, pos.y);
+    let center = (a + b) / 2.0;
+    let stick_entity = ecs.spawn((
+        CTransform {
+            pos: a,
+            dir: (b - a).normalize(),
+        },
+        Shape {
+            dims: Vec2::new((b - a).length(), 0.0),
+        },
+        HasRigidBody,
+    ));
+    let stick_collider = ColliderBuilder::cuboid(p2m(CAR_SHAPE.x) / 2.0, p2m(CAR_SHAPE.y) / 8.0)
+        .restitution(0.2)
+        .friction(0.0)
+        .mass(CAR_MASS)
+        .active_events(ActiveEvents::COLLISION_EVENTS)
+        .collision_groups(InteractionGroups::new(0b0010.into(), 0b0010.into()))
+        .build();
+    let stick_rigid_body = RigidBodyBuilder::dynamic()
+        .translation(vector![p2m(center.x), p2m(center.y)])
+        .rotation(angle)
+        .linvel(vector![p2m(0.0), p2m(0.0)])
+        // .lock_rotations()
+        .linear_damping(CAR_LINEAR_DAMPENING)
+        .angular_damping(CAR_ANGULAR_DAMPENING)
+        .can_sleep(false)
+        .ccd_enabled(true)
+        .build();
+    let stick_body_handle = state.physics.rigid_body_set.insert(stick_rigid_body);
+    state.physics.collider_set.insert_with_parent(
+        stick_collider,
+        stick_body_handle,
+        &mut state.physics.rigid_body_set,
+    );
+    state
+        .physics
+        .set_rigid_body_mapping(stick_entity, stick_body_handle);
+
+    // attach the stick via revolute joint to the back of the car and the front of the trailer
+    let anchor_a: Point<f32> = Point::from(vector![a.x, a.y]);
+    let anchor_b: Point<f32> = Point::from(vector![b.x, b.y]);
+
+    let joint = RevoluteJointBuilder::new()
+        .local_anchor1(anchor_a)
+        .local_anchor2(anchor_a)
+        .build();
+
+    state
+        .physics
+        .multibody_joint_set
+        .insert(car_body_handle, stick_body_handle, joint, true);
+
+    let joint = RevoluteJointBuilder::new()
+        .local_anchor1(anchor_b)
+        .local_anchor2(anchor_b)
+        .build();
+
+    state
+        .physics
+        .multibody_joint_set
+        .insert(stick_body_handle, trailer_body_handle, joint, true);
 
     car_entity
 }

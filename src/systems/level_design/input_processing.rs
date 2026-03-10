@@ -11,7 +11,7 @@ use crate::{
 pub const ACC_FORCE: f32 = 0.01;
 pub const REVERSE_FORCE: f32 = 0.01;
 pub const BREAK_FORCE: f32 = 0.01;
-pub const ROT_FORCE: f32 = 0.0001;
+pub const ROT_FORCE: f32 = 0.0002; //0.0001;
 pub const ROT_SPEED_LOSS_FRAC: f32 = 0.99;
 pub const HANDLING: f32 = 0.3;
 pub fn process_inputs(ecs: &mut World, state: &mut State) {

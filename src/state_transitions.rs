@@ -28,9 +28,9 @@ pub fn transition_to_level_design(rl: &mut RaylibHandle, ecs: &mut World, state:
     }
 
     // spawn wall for every wall
-    {
-        for wall in state.level_design_state.map.walls.clone().into_iter() {
-            spawn_wall(ecs, state, wall.a, wall.b);
-        }
-    }
+    // {
+    //     for wall in state.level_design_state.map.walls.clone().into_iter() {
+    //         spawn_wall(ecs, state, wall.a, wall.b);
+    //     }
+    // }
 }
